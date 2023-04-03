@@ -1,2 +1,0 @@
-Ejercicio 1.
-a) Para encontrar todos los cuadrados mágicos utilizando una solución de fuerza bruta se necesitarían generar un total de n^2! cuadrados, ya que, habiendo un total de n^2 casillas a llenar con números de entre 1 y n^2, podríamos llenar la primer casilla con n^2 posibilidades, la siguiente con n^2 - 1, y así sucesivamente hasta la última casilla donde queda una única posibilidad. De esta forma, nos quedan n^2 * n^2-1 * n^2-2 * ... * 2 * 1 posibilidades, que es lo mismo que n^2!
