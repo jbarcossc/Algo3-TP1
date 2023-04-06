@@ -14,7 +14,7 @@ void leerInstancia(string &file, vector<vector<int>> &vs, vector<pair<int,int>> 
     fstream instancia;
     int casos;
     instancia.open(file, ios::in);
-    int n,r,w;
+    int n,r,m;
     int k;
     if (instancia.is_open()){
         instancia >> casos;
@@ -22,15 +22,14 @@ void leerInstancia(string &file, vector<vector<int>> &vs, vector<pair<int,int>> 
             vector<int> v;
             instancia >> n;
             instancia >> r;
-            instancia >> w;
+            instancia >> m;
             for (int j =0; j<n;j++){
                 instancia >> k;
                 v.push_back(k);
             }
             vs.push_back(v);
-            rta.push_back(make_pair(r,w));
+            rta.push_back(make_pair(r,m));
         }
-
     }
     instancia.close();
 }
@@ -47,10 +46,14 @@ int main() {
     //ejecutar y tomar el tiempo
     auto start = high_resolution_clock::now();
     //llamar al algoritmo//
-
+    for (int i=0;i<vs.size();i++){
+        res.push_back( dinamica(vs[i],rta[i].first,rta[i].second));
+    }
     auto stop = high_resolution_clock::now();
     float tiempo = duration_cast<milliseconds>(stop - start).count();
     tiempo = tiempo / 1000;
+
+    //imprimir respuesta
     for(int i=0; i<res.size();i++){
         if (res[i])
             cout << "Si" << endl;
@@ -58,7 +61,7 @@ int main() {
             cout << "No" << endl;
     }
     //SOLO IMPRIMIR EN PANTALLA EL RESULTADO!!!
-    cout << "\n tardo: " << tiempo << " seg\n";
+    cout << "\n tardo: " << tiempo << " seg\n" << endl;
 
     return 0;
 }
