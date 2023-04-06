@@ -37,6 +37,7 @@ int main() {
     auto stop = high_resolution_clock::now();
     float tiempo = duration_cast<milliseconds>(stop - start).count();
     tiempo = tiempo / 1000;
+    //SOLO IMPRIMIR EN PANTALLA EL RESULTADO!!!
     cout << res << "\n tardo: " << tiempo << " seg\n";
 
     return 0;
