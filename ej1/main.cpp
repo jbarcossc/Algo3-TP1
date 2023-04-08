@@ -39,18 +39,19 @@ int main() {
     vector<numeroMagico> cuadradosMagicos = generarCuadrados(n);
     sort(cuadradosMagicos.begin(), cuadradosMagicos.end(), comparador);
 
-    for(int i = 0; i < cuadradosMagicos.size();i++){
-        cout << "fin" << endl;
-        numeroMagico iEsimo = cuadradosMagicos[i];
-        cout << iEsimo << endl;
+//    generar todas los cuadrados magicos posibles
+//    for(int i = 0; i < cuadradosMagicos.size();i++){
+//        numeroMagico iEsimo = cuadradosMagicos[i];
+//        cout << iEsimo << endl;
+//    }
+//    cout << "RESPUESTA!!!!!!!!" <<endl;
+
+    if (k-1>=cuadradosMagicos.size()){
+        cout << "-1" << endl;
+    } else {
+        numeroMagico kEsimo = cuadradosMagicos[k-1];
+        cout << kEsimo << endl;
     }
-//    if (k>=cuadradosMagicos.size()){
-//        cout << "-1" << endl;
-//    } else {
-//        advance(it, k);
-//        numeroMagico kEsimo = *it;
-//        cout << kEsimo << endl;
-//    }*/
     auto stop = high_resolution_clock::now();
     float tiempo = duration_cast<milliseconds>(stop - start).count(); //milisegundos
     tiempo = tiempo / 1000; // pasar a segundos

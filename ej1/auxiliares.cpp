@@ -15,7 +15,11 @@ void generarCuadradosRecursivos(numeroMagico c, vector<bool> valores, int i, vec
         }
     }
     int fila = floor(i / c.size());
-    int columna = i % c.size();
+    int columna =i % c.size();
+
+    if (fila >= c.size() ) return; //////////////
+
+
     // PODAS
     int valorSumaAdecuado = (pow(c.size(), 3) + c.size()) / 2; // JUSTIFICADO POR ENUNCIADO
     // CHEQUEAR FILA RECIEN COMPLETADA
