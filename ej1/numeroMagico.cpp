@@ -1,7 +1,3 @@
-//
-// Created by Lautaro on 2/4/2023.
-//
-
 #include "numeroMagico.h"
 
 numeroMagico::numeroMagico() {
@@ -25,6 +21,14 @@ int numeroMagico::size() {
 }
 
 Cuadrado numeroMagico::cuadrado() {
+    return this->mat;
+}
+
+int numeroMagico::size() const {
+    return this->n;
+}
+
+Cuadrado numeroMagico::cuadrado() const {
     return this->mat;
 }
 
@@ -60,14 +64,20 @@ bool numeroMagico::estaLleno() {
 
 void numeroMagico::rellenarCasilla(int fila, int columna, int valor) {
     // Debe cumplir: fila y columna en rango y valor válido
-    if(valor > 0 && valor <= this->n*this->n &&
-    fila >= 0 && fila < this->n &&
-    columna >= 0 && columna < this->n){
+    bool filaEnRango = fila >= 0 && fila < this->n;
+    bool colEnRango = columna >= 0 && columna < this->n;
+    bool valorEnRango = valor > 0 && valor <= (pow(this->n,2));
+    if (filaEnRango && colEnRango && valorEnRango) {
+//        cout << "[" << fila << ", " << columna << "]" << endl;
         this->mat[fila][columna] = valor;
+    } else {
+        // PRINT ERROR: INVALID ARGUMENTS
+        if (!filaEnRango) cout<< "filaEnRango" << endl;
+        if (!colEnRango) cout<< "colEnRango" << endl;
+        if (!valorEnRango) cout<< "valorEnRango" << endl;
+        cout << "Error al rellenar casilla [" << to_string(fila) << ", " << to_string(columna) << "] con el valor " << to_string(valor) << endl;
     }
-    // PRINT ERROR: INVALID ARGUMENTS
-    cout << "error rellenanar casilla" << endl;
-}
+ }
 
 int numeroMagico::sumaFila(int fila) {
     int suma = 0;
@@ -135,8 +145,8 @@ bool numeroMagico::operator< (numeroMagico &b){
     return false;
 }
 
-void numeroMagico::operator=(numeroMagico &b) {
+numeroMagico& numeroMagico::operator =(const numeroMagico& b) {
     this->n = b.size();
     this->mat = b.cuadrado();
+    return *this;
 }
-

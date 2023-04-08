@@ -3,6 +3,7 @@
 #include <fstream>
 #include <chrono>
 #include <sstream>
+#include <cmath>
 using namespace std;
 
 #ifndef ALGO3_TP1_NUMEROMAGICO_H
@@ -20,6 +21,8 @@ public:
     explicit numeroMagico(int n);
     int size();
     Cuadrado cuadrado();
+    int size() const;
+    Cuadrado cuadrado() const;
     int filasLlenas(); // Retorna la cantidad de filas consecutivas llenas desde la fila 0
     int columnasLlenas(); // Retorna la cantidad de columnas consecutivas llenas desde la columna 0
     bool estaLleno();
@@ -29,12 +32,13 @@ public:
     bool esMagico();
     void rellenarCasilla(int fila, int columna, int valor);
     bool operator< ( numeroMagico &b);
-    void operator= (numeroMagico &b);
+    numeroMagico& operator = (const numeroMagico& b);
 
-    friend ostream &operator<< (ostream &out, const numeroMagico& b){
+
+    friend ostream &operator<<(ostream &out, const numeroMagico& b){
         for (int i=0;i<b.n;i++){
             for (int j=0; j<b.n; j++){
-                out<< b.mat[i][j] << "\t";
+                out << to_string(b.mat[i][j]) << "\t";
             }
             out << "\n";
         }
