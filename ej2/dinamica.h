@@ -2,6 +2,7 @@
 #include <vector>
 #include <list>
 #include <cmath>
+#include "auxiliares.h"
 
 #ifndef ALGO3_TP1_AUXILIARES_H
 #define ALGO3_TP1_AUXILIARES_H

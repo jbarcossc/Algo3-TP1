@@ -1,12 +1,12 @@
 #include "numeroMagico.h"
 
-numeroMagico::numeroMagico() {
+NumeroMagico::NumeroMagico() {
     this->n = 0;
     Cuadrado matrix;
     this->mat = matrix;
 }
 
-numeroMagico::numeroMagico(const int n) {
+NumeroMagico::NumeroMagico(const int n) {
     this->n = n;
     Cuadrado matrix;
     for (int i = 0; i < this->n; i++) {
@@ -16,23 +16,23 @@ numeroMagico::numeroMagico(const int n) {
     this->mat = matrix;
 }
 
-int numeroMagico::size() {
+int NumeroMagico::size() {
     return this->n;
 }
 
-Cuadrado numeroMagico::cuadrado() {
+Cuadrado NumeroMagico::cuadrado() {
     return this->mat;
 }
 
-int numeroMagico::size() const {
+int NumeroMagico::size() const {
     return this->n;
 }
 
-Cuadrado numeroMagico::cuadrado() const {
+Cuadrado NumeroMagico::cuadrado() const {
     return this->mat;
 }
 
-int numeroMagico::filasLlenas(){
+int NumeroMagico::filasLlenas(){
     int res = 0;
     for (int i = 0; i < this->n; i++) {
         for (int j = 0; j < this->n; j++) {
@@ -45,7 +45,7 @@ int numeroMagico::filasLlenas(){
     return res;
 }
 
-int numeroMagico::columnasLlenas() {
+int NumeroMagico::columnasLlenas() {
     int res = 0;
     for (int j = 0; j < this->n; j++) {
         for (int i = 0; i < this->n; i++) {
@@ -58,11 +58,11 @@ int numeroMagico::columnasLlenas() {
     return res;
 }
 
-bool numeroMagico::estaLleno() {
+bool NumeroMagico::estaLleno() {
     return(this->filasLlenas() == this->n);
 }
 
-void numeroMagico::rellenarCasilla(int fila, int columna, int valor) {
+void NumeroMagico::rellenarCasilla(int fila, int columna, int valor) {
     // Debe cumplir: fila y columna en rango y valor válido
     bool filaEnRango = fila >= 0 && fila < this->n;
     bool colEnRango = columna >= 0 && columna < this->n;
@@ -79,7 +79,7 @@ void numeroMagico::rellenarCasilla(int fila, int columna, int valor) {
     }
  }
 
-int numeroMagico::sumaFila(int fila) {
+int NumeroMagico::sumaFila(int fila) {
     int suma = 0;
     for(int i = 0; i < this->n; i++){
         suma += this->mat[fila][i];
@@ -87,7 +87,7 @@ int numeroMagico::sumaFila(int fila) {
     return suma;
 }
 
-int numeroMagico::sumaCol(int columna) {
+int NumeroMagico::sumaCol(int columna) {
     int suma = 0;
     for(int i = 0; i < this->n; i++){
         suma += this->mat[i][columna];
@@ -95,7 +95,7 @@ int numeroMagico::sumaCol(int columna) {
     return suma;
 }
 
-pair<int, int> numeroMagico::sumaDiagonal() {
+pair<int, int> NumeroMagico::sumaDiagonal() {
     pair<int,int> res;
     // suma1 corresponde a la diagonal que surge desde la casilla (0,0) y recorre hasta la casilla (n-1,n-1)
     int suma1 = 0;
@@ -110,7 +110,7 @@ pair<int, int> numeroMagico::sumaDiagonal() {
     return res;
 }
 
-bool numeroMagico::esMagico() {
+bool NumeroMagico::esMagico() {
     if(!this->estaLleno()){
         return false;
     }
@@ -124,7 +124,7 @@ bool numeroMagico::esMagico() {
     return(sumaDiag.first == suma && sumaDiag.second == suma);
 }
 
-//ostream& numeroMagico::operator<< (ostream &out, const numeroMagico& b){
+//ostream& NumeroMagico::operator<< (ostream &out, const NumeroMagico& b){
 //    for (int i=0;i<b.n;i++){
 //        for (int j=0; j<b.n; j++){
 //            out<< this->b.mat[i][j] << "\t";
@@ -134,7 +134,7 @@ bool numeroMagico::esMagico() {
 //    return out;
 //}
 
-bool numeroMagico::operator< (numeroMagico &b){
+bool NumeroMagico::operator< (NumeroMagico &b){
     //asumo que son del mismo size
     for (int i = 0; i < mat.size() ; ++i) {
         for (int j = 0; j < mat[0].size(); ++j) {
@@ -145,7 +145,7 @@ bool numeroMagico::operator< (numeroMagico &b){
     return false;
 }
 
-numeroMagico& numeroMagico::operator =(const numeroMagico& b) {
+NumeroMagico& NumeroMagico::operator =(const NumeroMagico& b) {
     this->n = b.size();
     this->mat = b.cuadrado();
     return *this;
