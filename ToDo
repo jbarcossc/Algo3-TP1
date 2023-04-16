@@ -1,0 +1,15 @@
+Del ejercio 1 :
+
+Ya con cuadrado de tamano 4 tarda MUUUUCHO
+
+las podas pierden mas tiempo del que ganan.
+En vez de calcular las sumas de la fila actual en O(n) podemos tener una variable que lleve cuanto va valiendo la suma y cuando llega al final de la fila, se reinicie a 0
+lo mismo para las columnas
+quiza lo mismo para las diagones con un if (fila==columna) (?)
+pow(x) en c++ es O(x). Por lo que deberiamos no calcular en todas las iteraciones al numero Magico. Con calcularlo 1 vez alcanza
+
+pq generarCuadradosRecursivos no pertenece a la clase de numeroMagico? de esa manera podemos tener esos numeros como varaibles privadas de la clase
+opcion 2: crear funcion podaSumaParcial y qeu esas variables se pasen siempre como parametros
+
+
+es probable que podramos mejorar esMagico ya que no haria falta tener que cheackear si las filas y columnas suman correctamente ya que lo habrames checkeado en cada iteracion

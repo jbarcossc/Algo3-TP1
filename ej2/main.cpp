@@ -3,7 +3,7 @@
 #include <fstream>
 #include <chrono>
 #include <sstream>
-#include "dinamica.cpp"
+#include "dinamica.h"
 
 using namespace std;
 using namespace std::chrono;
@@ -37,7 +37,7 @@ void leerInstancia(string &file, vector<vector<int>> &vs, vector<pair<int,int>> 
 
 int main() {
     //leer
-    string file;
+    string file = "../instancias/ej1.in";
     vector<vector<int>>vs;
     vector<pair<int,int>> rta;
     leerInstancia(file,vs,rta);
@@ -47,7 +47,8 @@ int main() {
     auto start = high_resolution_clock::now();
     //llamar al algoritmo//
     for (int i=0;i<vs.size();i++){
-        res.push_back( dinamica(vs[i],rta[i].first,rta[i].second));
+        TablaDinamica tabla(vs[i],rta[i].first,rta[i].second));
+        res.push_back(tabla.dinamica());
     }
     auto stop = high_resolution_clock::now();
     float tiempo = duration_cast<milliseconds>(stop - start).count();
