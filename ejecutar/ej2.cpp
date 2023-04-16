@@ -9,34 +9,46 @@
 using namespace std;
 using namespace std::chrono;
 
-int modulo(int n, int d){
-    if (n % d >= 0){
+int64_t modulo(int64_t n, int64_t d){
+    if (n >= 0){
         return n % d;
     }
-    return d - (n % d);
+    return d + (n % d);
 }
+
+int64_t mod_bin_exp(int64_t x, int64_t y, int64_t n) {
+    // visto en el taller 1
+    // X^y mod n
+    if (y==0) return 1;
+
+    if (y % 2 == 0) {
+        return  modulo(pow( mod_bin_exp(x, y/2, n),2) , n);
+    }
+    else{
+        return modulo(modulo(pow(mod_bin_exp(x, y/2, n),2), n) *x , n);
+    }
+}
+
 
 class TablaDinamica {
 private:
     vector<int> v;
     int m;
     int r;
-    vector<vector<bool>> memTable;
+    vector<vector<int>> memTable;
 public:
     TablaDinamica(){
         vector<int> vector;
         this->v = vector;
         this->m = 0;
         this->r = 0;
-        vector<vector<bool>> tablaValores;
-        this->memTable = tablaValores;
     }
-    TablaDinamica(vector<int> v, int m, int r){
+    TablaDinamica(vector<int> v, int r, int m){
         this->v = v;
         this->m = m;
         this->r = r;
-        vector<int> fila(m,false);
-        vector<vector<bool>> tablaValores(v.size(),fila);
+        vector<int> fila(m,-1);
+        vector<vector<int>> tablaValores(v.size(),fila);
         this->memTable = tablaValores;
     }
     vector<int> v_(){
@@ -48,90 +60,66 @@ public:
     int resto(){
         return this->r;
     }
-    vector<vector<bool>> tablaMemoizacion(){
+    vector<vector<int>> tablaMemoizacion(){
         return this->memTable;
     }
     bool dinamica(){
-        return PD(0,0);
+        return PD(1,modulo(v[0],m));
     }
-    bool PD(int i, int k){
-        if (i==0) return PD(i+1,this->v[i] % this->m);
-        if (i==v.size()) return (k % this->m == this->r);
+    bool PD(int i, int64_t k){
+        // i = iterador del vector
+        // k = suma parcial
+        if (i == v.size()) return (modulo(k,m) == r);
+
+        if (memTable[i][k] != -1 ) return memTable[i][k];
 
         bool res = false;
-
-        if (this->memTable[i][modulo(k + this->v[i],this->m)]) {
-            res = res or this->memTable[i][modulo(k + this->v[i],this->m)];
-        } else {
-            res = res or PD(i+1,modulo(k + this->v[i],this->m));
-            this->memTable[i][modulo(k + this->v[i],this->m)] = res;
-        }
-        if (this->memTable[i][modulo(k - this->v[i],this->m)]) {
-            res = res or this->memTable[i][modulo(k + this->v[i],this->m)];
-        } else {
-            res = res or PD(i+1,modulo(k - this->v[i],this->m));
-            this->memTable[i][modulo(k - this->v[i],this->m)] = res;
-        }
-        if (this->memTable[i][modulo(k * this->v[i],this->m)]) {
-            res = res or this->memTable[i][modulo(k * this->v[i],this->m)];
-        } else {
-            res = res or PD(i+1,modulo(k * this->v[i],this->m));
-            this->memTable[i][modulo(k * this->v[i],this->m)] = res;
-        }
-        if (this->memTable[i][modulo(pow(k, this->v[i]),this->m)]) {
-            res = res or this->memTable[i][modulo(pow(k, this->v[i]),this->m)];
-        } else {
-            res = res or PD(i+1,modulo(pow(k, this->v[i]),this->m));
-            this->memTable[i][modulo(pow(k, this->v[i]),this->m)] = res;
-        }
+        res = res or PD(i+1,modulo(k + v[i],m));
+        res = res or PD(i+1,modulo(k * v[i],m));
+        res = res or PD(i+1,modulo(k - v[i],m));
+        res = res or PD(i+1, mod_bin_exp(k,v[i],m));
+        //        res = res or PD(i+1,modulo(pow(k, v[i]),m));
+        memTable[i][k] = res;
         return res;
     }
 };
 
 
-void leerInstancia(string &file, vector<vector<int>> &vs, vector<pair<int,int>> &rta){
-    fstream instancia;
-    int casos;
-    instancia.open(file, ios::in);
-    int n,r,m;
-    int k;
-    if (instancia.is_open()){
-        instancia >> casos;
-        for (int i=0 ; i<casos ; i++){
-            vector<int> v;
-            instancia >> n;
-            instancia >> r;
-            instancia >> m;
-            for (int j =0; j<n;j++){
-                instancia >> k;
-                v.push_back(k);
-            }
-            vs.push_back(v);
-            rta.push_back(make_pair(r,m));
+void leerInput(vector<vector<int>> &vs, vector<pair<int,int>> &rta) {
+    int n,r,m,k, casos;
+    cin >> casos;
+    while (casos --){
+        vector<int> v;
+        cin >> n;
+        cin >> r;
+        cin >> m;
+        for (int j =0; j<n;j++){
+            cin >> k;
+            v.push_back(k);
         }
+        vs.push_back(v);
+        rta.push_back(make_pair(r,m));
     }
-    instancia.close();
 }
-
 
 int main() {
     //leer
-    string file = "../instancias/ej1.in";
     vector<vector<int>>vs;
     vector<pair<int,int>> rta;
-    leerInstancia(file,vs,rta);
+    leerInput(vs,rta);
     vector<bool> res;
 
+
     //ejecutar y tomar el tiempo
-    auto start = high_resolution_clock::now();
+//    auto start = high_resolution_clock::now();
     //llamar al algoritmo//
     for (int i=0;i<vs.size();i++){
         TablaDinamica tabla(vs[i],rta[i].first,rta[i].second);
         res.push_back(tabla.dinamica());
     }
-    auto stop = high_resolution_clock::now();
-    float tiempo = duration_cast<milliseconds>(stop - start).count();
-    tiempo = tiempo / 1000;
+//    auto stop = high_resolution_clock::now();
+//    float tiempo = duration_cast<milliseconds>(stop - start).count();
+//    tiempo = tiempo / 1000;
 
     //imprimir respuesta
     for(int i=0; i<res.size();i++){
@@ -141,7 +129,7 @@ int main() {
             cout << "No" << endl;
     }
     //SOLO IMPRIMIR EN PANTALLA EL RESULTADO!!!
-    cout << "\n tardo: " << tiempo << " seg\n" << endl;
+//    cout << "\n tardo: " << tiempo << " seg\n" << endl;
 
     return 0;
 }
