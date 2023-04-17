@@ -1,10 +1,9 @@
 #include <iostream>
 #include <vector>
-#include <fstream>
 #include <chrono>
 #include <sstream>
-#include <algorithm>
 #include <cmath>
+#include <list>
 
 using namespace std;
 using namespace std::chrono;
@@ -65,20 +64,25 @@ public:
         return this->mat;
     }
 
-    int sumaFila(int fila){
-        return this->sumas[0][fila];
-    }
-
-    int sumaCol(int columna){
-        return this->sumas[1][columna];
-    }
-
-    pair<int,int> sumaDiagonal(){
-        return this->sumasDiagonales;
-    }
-
     bool esCuadradoMagico() {
         return this->esMagico;
+    }
+
+    bool probar(int &fila, int &columna, int valor){
+        bool prevEsMagico = this->esMagico;
+        this->rellenarCasilla(fila, columna, valor);
+        bool res = this->esMagico;
+        this->rellenarCasilla(fila, columna, 0);
+        this->sumas[0][fila] -= valor;
+        this->sumas[1][columna] -= valor;
+        if(fila == columna) {
+            this->sumasDiagonales.first -= valor;
+        }
+        if((this->n - columna - 1) == fila) {
+            this->sumasDiagonales.second -= valor;
+        }
+        this->esMagico = prevEsMagico;
+        return res;
     }
 
     void rellenarCasilla(int fila, int columna, int valor) {
@@ -110,12 +114,8 @@ public:
             if(fila == (this->n - 1) && columna == 0) {
                 this->esMagico = this->esMagico && (this->sumasDiagonales.second == this->sumaAdecuada);
             }
-        } else {
-            // PRINT ERROR: INVALID ARGUMENTS
-            if (!filaEnRango) cout<< "filaEnRango" << endl;
-            if (!colEnRango) cout<< "colEnRango" << endl;
-            if (!valorEnRango) cout<< "valorEnRango" << endl;
-            cout << "Error al rellenar casilla [" << to_string(fila) << ", " << to_string(columna) << "] con el valor " << to_string(valor) << endl;
+            this->esMagico = this->esMagico && (this->sumas[0][fila] + (this->n * this->n * (this->n - columna - 1)) >= this->sumaAdecuada);
+            this->esMagico = this->esMagico && (this->sumas[1][columna] + (this->n * this->n * (this->n - fila - 1)) >= this->sumaAdecuada);
         }
     }
 
@@ -133,6 +133,10 @@ public:
     NumeroMagico& operator = (const NumeroMagico& b){
         this->n = b.size();
         this->mat = b.cuadrado();
+        this->esMagico = b.esMagico;
+        this->sumas = b.sumas;
+        this->sumasDiagonales = b.sumasDiagonales;
+        this->sumaAdecuada = b.sumaAdecuada;
         return *this;
     }
 
@@ -145,9 +149,10 @@ public:
         }
         return out;
     }
+
 };
 
-void generarCuadradosRecursivos(NumeroMagico &c, vector<bool> &valores, int i, vector<NumeroMagico> &res) {
+void generarCuadradosRecursivos(NumeroMagico &c, vector<bool> &valores, int i, list<NumeroMagico> &res, int k) {
     if (i == (pow(c.size(), 2))) {
         if(c.esCuadradoMagico()){
             res.push_back(c);
@@ -155,74 +160,42 @@ void generarCuadradosRecursivos(NumeroMagico &c, vector<bool> &valores, int i, v
     }
     int fila = floor(i / c.size());
     int columna = i % c.size();
-    if (fila >= c.size()) return;
+    if (fila >= c.size() || res.size() >= k) return;
 
     if (c.esCuadradoMagico()) {
         for (int j = 0; j < valores.size(); j++) {
             if (valores[j]) {
+                if(c.probar(fila, columna, j+1)){
                     NumeroMagico nuevoCuadrado = c;
                     nuevoCuadrado.rellenarCasilla(fila, columna, j + 1);
                     vector<bool> nuevoVectorValores = valores;
                     nuevoVectorValores[j] = false;
-                    generarCuadradosRecursivos(nuevoCuadrado, nuevoVectorValores, i + 1, res);
+                    generarCuadradosRecursivos(nuevoCuadrado, nuevoVectorValores, i + 1, res, k);
                 }
             }
         }
     }
-
-bool podaSumaParcial(int &filaSum, int &colSum,  int j, int &sumaAdecuada, int &fila, int &col, int &n) {
-    if (fila == 0) colSum =0;
-    if (col == 0) filaSum =0;
-
-    bool res = true;
-    res &= filaSum + j <= sumaAdecuada;
-    res &= colSum + j <= sumaAdecuada;
-
 }
 
-vector<NumeroMagico> generarCuadrados(int n){
+list<NumeroMagico> generarCuadrados(int n, int k){
     NumeroMagico cuadrado = NumeroMagico(n);
     vector<bool> vals (pow(n,2), true);
-    vector<NumeroMagico> res;
-
-    //auto start = high_resolution_clock::now();
-
-
-    generarCuadradosRecursivos(cuadrado, vals, 0, res);
-
-    //auto stop2 = high_resolution_clock::now();
-    //float tiempo2 = duration_cast<milliseconds>(stop2 - start).count(); //milisegundos
-    //tiempo2 = tiempo2 / 1000; // pasar a segundos
-    //cout << "generarCuadrado Recursivoo: " << tiempo2 << " seg\n";
-
+    list<NumeroMagico> res;
+    generarCuadradosRecursivos(cuadrado, vals, 0, res, k);
     return res;
 }
 
-bool comparador( NumeroMagico &a, NumeroMagico &b){
-    return a<b;
-}
-
 int main() {
-    //leer
     int n,k;
     cin >> n;
     cin >> k;
-    //llamar al algoritmo//
-    auto start = high_resolution_clock::now();
-
-    vector<NumeroMagico> cuadradosMagicos = generarCuadrados(n);
-
-    auto stop = high_resolution_clock::now();
-    float tiempo = duration_cast<milliseconds>(stop - start).count(); //milisegundos
-    tiempo = tiempo / 1000; // pasar a segundos
-    cout << "tardo: " << tiempo << " seg\n";
-
-    sort(cuadradosMagicos.begin(), cuadradosMagicos.end(), comparador);
-
+    list<NumeroMagico> cuadradosMagicos = generarCuadrados(n,k);
+    auto it = cuadradosMagicos.begin();
     if (k-1>=cuadradosMagicos.size()){
         cout << "-1" << endl;
     } else {
-        NumeroMagico kEsimo = cuadradosMagicos[k-1];
+        advance(it, k-1);
+        NumeroMagico kEsimo = *it;
         cout << kEsimo << endl;
     }
     return 0;
