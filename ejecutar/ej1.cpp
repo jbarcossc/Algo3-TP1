@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <stdlib.h>
 #include <chrono>
 #include <sstream>
 #include <cmath>
@@ -18,6 +19,7 @@ private:
     bool esMagico;
     vector<vector<int>> sumas;
     pair<int, int> sumasDiagonales;
+    vector<bool> valores;
 
 public:
     NumeroMagico(){
@@ -30,6 +32,8 @@ public:
         this->sumas = sumas;
         pair<int, int> diags;
         this->sumasDiagonales = diags;
+        vector<bool> valores;
+        this->valores = valores;
     }
 
     explicit NumeroMagico(int n) {
@@ -46,6 +50,8 @@ public:
         vector<vector<int>> sumas(2, filas);
         this->sumas = sumas;
         this->sumasDiagonales = {0,0};
+        vector<bool> valores(n*n + 1, false);
+        this->valores = valores;
     }
 
     int size(){
@@ -74,6 +80,14 @@ public:
 
     void setMagico(){
         this->esMagico = true;
+    }
+
+    void setVal(int i, bool val){
+        this->valores[i] = val;
+    }
+
+    bool esta(int a){
+        return this->valores[a];
     }
 
     void rellenarCasilla(int fila, int columna, int valor) {
@@ -144,24 +158,29 @@ public:
 
 };
 
-void generarCuadradosRecursivos(NumeroMagico &c, vector<bool> &valores, int i, vector<NumeroMagico> &res, int k) {
+void generarCuadradosRecursivos(NumeroMagico &c, int i, int &k, int &s, bool &exit) {
     if (i == (pow(c.size(), 2))) {
         if(c.esCuadradoMagico()){
-            res.push_back(c);
+            s++;
+            if(s == k){
+                exit = true;
+                return;
+            }
         }
     }
     int fila = floor(i / c.size());
     int columna = i % c.size();
-    if (fila >= c.size() || res.size() >= k){
+    if (fila >= c.size() || exit){
         return;
     }
     if (c.esCuadradoMagico()) {
-        for (int j = 0; j < valores.size(); j++) {
-            if (valores[j]) {
-                c.rellenarCasilla(fila, columna, j + 1);
-                valores[j] = false;
-                generarCuadradosRecursivos(c, valores, i + 1, res, k);
-                valores[j] = true;
+        for (int j = 1; j <= c.size()*c.size(); j++) {
+            if (!c.esta(j)) {
+                c.rellenarCasilla(fila, columna, j);
+                c.setVal(j, true);
+                generarCuadradosRecursivos(c, i + 1, k, s, exit);
+                if(exit) return;
+                c.setVal(j, false);
                 c.rellenarCasilla(fila, columna, 0);
                 c.setMagico();
             }
@@ -169,24 +188,22 @@ void generarCuadradosRecursivos(NumeroMagico &c, vector<bool> &valores, int i, v
     }
 }
 
-vector<NumeroMagico> generarCuadrados(int n, int k){
+void generarCuadrados(int &n, int &k){
     NumeroMagico cuadrado = NumeroMagico(n);
-    vector<bool> vals (pow(n,2), true);
-    vector<NumeroMagico> res;
-    generarCuadradosRecursivos(cuadrado, vals, 0, res, k);
-    return res;
+    int s = 0;
+    bool exit = false;
+    generarCuadradosRecursivos(cuadrado, 0, k, s, exit);
+    if(exit){
+        cout << cuadrado << endl;
+    } else {
+        cout << "-1" << endl;
+    }
 }
 
 int main() {
     int n,k;
     cin >> n;
     cin >> k;
-    vector<NumeroMagico> cuadradosMagicos = generarCuadrados(n,k);
-    if (k-1>=cuadradosMagicos.size()){
-        cout << "-1" << endl;
-    } else {
-        NumeroMagico kEsimo = cuadradosMagicos[k-1];
-        cout << kEsimo << endl;
-    }
+    generarCuadrados(n,k);
     return 0;
 }
