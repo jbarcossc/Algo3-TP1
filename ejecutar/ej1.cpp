@@ -19,7 +19,7 @@ private:
     bool esMagico;
     vector<vector<int>> sumas;
     pair<int, int> sumasDiagonales;
-    vector<bool> valores;
+    list<bool> valores;
 
 public:
     NumeroMagico(){
@@ -32,7 +32,7 @@ public:
         this->sumas = sumas;
         pair<int, int> diags;
         this->sumasDiagonales = diags;
-        vector<bool> valores;
+        list<bool> valores;
         this->valores = valores;
     }
 
@@ -50,7 +50,7 @@ public:
         vector<vector<int>> sumas(2, filas);
         this->sumas = sumas;
         this->sumasDiagonales = {0,0};
-        vector<bool> valores(n*n + 1, false);
+        list<bool> valores(n*n + 1, false);
         this->valores = valores;
     }
 
@@ -81,7 +81,7 @@ public:
     void setMagico(){
         this->esMagico = true;
     }
-
+/*
     void setVal(int i, bool val){
         this->valores[i] = val;
     }
@@ -89,7 +89,7 @@ public:
     bool esta(int a){
         return this->valores[a];
     }
-
+*/
     bool operator< ( NumeroMagico &b){
         //asumo que son del mismo size
         for (int i = 0; i < mat.size() ; ++i) {
@@ -119,6 +119,11 @@ public:
             out << "\n";
         }
         return out;
+    }
+
+    list<bool>::iterator it(){
+        auto it = this->valores.begin();
+        return it;
     }
 
     void rellenarCasilla(int fila, int columna, int valor) {
@@ -158,7 +163,7 @@ public:
 
 };
 
-void generarCuadradosRecursivos(NumeroMagico &c, int i, int &k, int &s, bool &exit) {
+void generarCuadradosRecursivos(NumeroMagico &c, int i, int k, int &s, bool &exit) {
     if (exit) return;
     if (i == c.size() * c.size() ) {
         if(c.esCuadradoMagico()){
@@ -174,22 +179,26 @@ void generarCuadradosRecursivos(NumeroMagico &c, int i, int &k, int &s, bool &ex
     if (fila >= c.size() || exit){
         return;
     }
+    auto it = c.it();
     if (c.esCuadradoMagico()) {
         for (int j = 1; j <= c.size() * c.size(); j++) {
-            if (!c.esta(j)) {
+            if (!(*it)) {
                 c.rellenarCasilla(fila, columna, j);
-                c.setVal(j, true);
-                generarCuadradosRecursivos(c, i + 1, k, s, exit);
+                *it = true;
+                if(c.esCuadradoMagico()) {
+                    generarCuadradosRecursivos(c, i + 1, k, s, exit);
+                }
                 if(exit) return;
-                c.setVal(j, false);
+                *it = false;
                 c.rellenarCasilla(fila, columna, 0);
                 c.setMagico();
             }
+            advance(it,1);
         }
     }
 }
 
-void generarCuadrados(int &n, int &k){
+void generarCuadrados(int n, int k){
     NumeroMagico cuadrado = NumeroMagico(n);
     int s = 0;
     bool exit = false;
@@ -205,6 +214,10 @@ int main() {
     int n,k;
     cin >> n;
     cin >> k;
+    //auto start = high_resolution_clock::now();
     generarCuadrados(n,k);
+    //auto stop = high_resolution_clock::now();
+    //auto duration = duration_cast<milliseconds>(stop - start);
+    //cout << duration.count() << endl;
     return 0;
 }
