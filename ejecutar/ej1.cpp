@@ -90,6 +90,37 @@ public:
         return this->valores[a];
     }
 
+    bool operator< ( NumeroMagico &b){
+        //asumo que son del mismo size
+        for (int i = 0; i < mat.size() ; ++i) {
+            for (int j = 0; j < mat[0].size(); ++j) {
+                if (mat[i][j] < b.at(i,j)) return true;
+                if (mat[i][j] > b.at(i,j)) return false;
+            }
+        }
+        return false;
+    }
+
+    NumeroMagico& operator = (const NumeroMagico& b){
+        this->n = b.size();
+        this->mat = b.cuadrado();
+        this->esMagico = b.esMagico;
+        this->sumas = b.sumas;
+        this->sumasDiagonales = b.sumasDiagonales;
+        this->sumaAdecuada = b.sumaAdecuada;
+        return *this;
+    }
+
+    friend ostream &operator<<(ostream &out, const NumeroMagico& b){
+        for (int i=0;i<b.n;i++){
+            for (int j=0; j<b.n; j++){
+                out << to_string(b.mat[i][j]) << "\t";
+            }
+            out << "\n";
+        }
+        return out;
+    }
+
     void rellenarCasilla(int fila, int columna, int valor) {
         bool filaEnRango = fila >= 0 && fila < this->n;
         bool colEnRango = columna >= 0 && columna < this->n;
@@ -125,41 +156,11 @@ public:
         }
     }
 
-    bool operator< ( NumeroMagico &b){
-        //asumo que son del mismo size
-        for (int i = 0; i < mat.size() ; ++i) {
-            for (int j = 0; j < mat[0].size(); ++j) {
-                if (mat[i][j] < b.at(i,j)) return true;
-                if (mat[i][j] > b.at(i,j)) return false;
-            }
-        }
-        return false;
-    }
-
-    NumeroMagico& operator = (const NumeroMagico& b){
-        this->n = b.size();
-        this->mat = b.cuadrado();
-        this->esMagico = b.esMagico;
-        this->sumas = b.sumas;
-        this->sumasDiagonales = b.sumasDiagonales;
-        this->sumaAdecuada = b.sumaAdecuada;
-        return *this;
-    }
-
-    friend ostream &operator<<(ostream &out, const NumeroMagico& b){
-        for (int i=0;i<b.n;i++){
-            for (int j=0; j<b.n; j++){
-                out << to_string(b.mat[i][j]) << "\t";
-            }
-            out << "\n";
-        }
-        return out;
-    }
-
 };
 
 void generarCuadradosRecursivos(NumeroMagico &c, int i, int &k, int &s, bool &exit) {
-    if (i == (pow(c.size(), 2))) {
+    if (exit) return;
+    if (i == c.size() * c.size() ) {
         if(c.esCuadradoMagico()){
             s++;
             if(s == k){
@@ -174,7 +175,7 @@ void generarCuadradosRecursivos(NumeroMagico &c, int i, int &k, int &s, bool &ex
         return;
     }
     if (c.esCuadradoMagico()) {
-        for (int j = 1; j <= c.size()*c.size(); j++) {
+        for (int j = 1; j <= c.size() * c.size(); j++) {
             if (!c.esta(j)) {
                 c.rellenarCasilla(fila, columna, j);
                 c.setVal(j, true);
