@@ -20,6 +20,8 @@ private:
     vector<vector<int>> sumas;
     pair<int, int> sumasDiagonales;
     list<bool> valores;
+    bool exit;
+
 
 public:
     NumeroMagico(){
@@ -34,6 +36,7 @@ public:
         this->sumasDiagonales = diags;
         list<bool> valores;
         this->valores = valores;
+        this->exit= false;
     }
 
     explicit NumeroMagico(int n) {
@@ -44,7 +47,7 @@ public:
             matrix.push_back(row);
         }
         this->mat = matrix;
-        this->sumaAdecuada = (pow(n, 3) + n) / 2; // JUSTIFICADO POR ENUNCIADO
+        this->sumaAdecuada = (n*n*n + n) / 2; // JUSTIFICADO POR ENUNCIADO
         this->esMagico = true;
         vector<int> filas(n, 0);
         vector<vector<int>> sumas(2, filas);
@@ -52,6 +55,7 @@ public:
         this->sumasDiagonales = {0,0};
         list<bool> valores(n*n + 1, false);
         this->valores = valores;
+        this->exit = false;
     }
 
     int size(){
@@ -121,91 +125,135 @@ public:
         return out;
     }
 
+    bool exit_(){
+        return this->exit;
+    }
+
     list<bool>::iterator it(){
         auto it = this->valores.begin();
         return it;
     }
 
-    void rellenarCasilla(int fila, int columna, int valor) {
-        bool filaEnRango = fila >= 0 && fila < this->n;
-        bool colEnRango = columna >= 0 && columna < this->n;
-        bool valorEnRango = valor > 0 && valor <= (pow(this->n,2));
-        if (filaEnRango && colEnRango && valorEnRango) {
-            // ACTUALIZAR VALORES
+    void vaciarCasilla(int fila,int columna){
             int valorPrevio = this->mat[fila][columna];
-            this->mat[fila][columna] = valor;
-            this->sumas[0][fila] += valor - valorPrevio;
-            this->sumas[1][columna] += valor - valorPrevio;
+            this->mat[fila][columna] = 0;
+            // SUMAS
+            this->sumas[0][fila] -= valorPrevio;
+            this->sumas[1][columna] -=  valorPrevio;
             // SUMAS DIAGONALES
             if(fila == columna) {
-                this->sumasDiagonales.first += valor - valorPrevio;
+                this->sumasDiagonales.first -= valorPrevio;
             }
             if((this->n - columna - 1) == fila) {
-                this->sumasDiagonales.second += valor - valorPrevio;
+                this->sumasDiagonales.second -= valorPrevio;
             }
-            // ACTUALIZAR ES MAGICO
-            if(columna == (this->n - 1)) {
-                this->esMagico = this->esMagico && (this->sumas[0][fila] == this->sumaAdecuada);
-            }
-            if(fila == (this->n - 1)) {
-                this->esMagico = this->esMagico && (this->sumas[1][columna] == this->sumaAdecuada);
-            }
-            if(fila == (this->n - 1) && columna == (this->n - 1)) {
-                this->esMagico = this->esMagico && (this->sumasDiagonales.first == this->sumaAdecuada);
-            }
-            if(fila == (this->n - 1) && columna == 0) {
-                this->esMagico = this->esMagico && (this->sumasDiagonales.second == this->sumaAdecuada);
-            }
-            this->esMagico = this->esMagico && (this->sumas[0][fila] + (this->n * this->n * (this->n - columna - 1)) >= this->sumaAdecuada);
-            this->esMagico = this->esMagico && (this->sumas[1][columna] + (this->n * this->n * (this->n - fila - 1)) >= this->sumaAdecuada);
+    }
+
+    bool hayQuePodar(int fila, int columna, int valor){
+        // true si  poda
+        bool res = true;
+        // columna
+        if(columna == n - 1) {
+           res &= sumas[0][fila] + valor == sumaAdecuada;
         }
+        else if(columna < n - 1) {
+            res &= sumas[0][fila] + valor < sumaAdecuada;
+        }
+        // fila
+        if(fila == n - 1) {
+            res &= sumas[1][columna] + valor == sumaAdecuada;
+        }
+        else if(fila < n - 1) {
+            res &= sumas[1][columna] + valor < sumaAdecuada;
+        }
+        //diagonales
+        if (fila == columna) {
+            res &=  this->sumasDiagonales.first + valor <= sumaAdecuada;
+        }
+        if (fila + columna == n - 1){
+            res &=  this->sumasDiagonales.second + valor <= sumaAdecuada;
+        }
+
+        return !res;
+    }
+
+    bool rellenarCasilla(int fila, int columna, int valor) {
+        // devulve true si se pudo rellenar
+        bool filaEnRango = fila >= 0 && fila < this->n;
+        bool colEnRango = columna >= 0 && columna < this->n;
+        bool valorEnRango = valor > 0 && valor <= n*n;
+        bool res = filaEnRango && colEnRango && valorEnRango;
+        res &= !hayQuePodar(fila,columna,valor);
+        if (res) {
+            this->mat[fila][columna] = valor;
+            // SUMAS
+            this->sumas[0][fila] += valor;
+            this->sumas[1][columna] += valor;
+            // SUMAS DIAGONALES
+            if(fila == columna) {
+                this->sumasDiagonales.first += valor;
+            }
+            if((this->n - columna - 1) == fila) {
+                this->sumasDiagonales.second += valor;
+            }
+            res =  true;
+            }
+        return res;
+}
+
+
+    bool generarCuadradosRecursivos( int fila, int columna, int &k) {
+        if (k == 0 ) {
+            return true ;
+        }
+
+        // checkear si lleagmos al final
+        if (fila == n) {
+            if (sumasDiagonales.first == sumaAdecuada && sumasDiagonales.second == sumaAdecuada){
+                k--;
+                return k==0;
+            }
+           return false;
+        }
+
+        // moverse a la sig fila
+        int next_fila = fila;
+        int next_col = columna + 1;
+        if (next_col == n) {
+            next_fila++;
+            next_col = 0;
+        }
+
+//        int fila = floor(i / n);
+//        int columna = i % n;
+
+        list<bool>::iterator it = this->valores.begin();
+        for (int j = 1; j <= n*n; j++) {
+            if (!(*it)) {
+                if(rellenarCasilla(fila, columna, j)) {
+                    *it = true;
+                    if (generarCuadradosRecursivos( next_fila,next_col , k)){
+                        return true;
+                    }
+                }
+                vaciarCasilla(fila,columna);
+                *it = false;
+            }
+            advance(it,1);
+        }
+        return  false;
     }
 
 };
 
-void generarCuadradosRecursivos(NumeroMagico &c, int i, int k, int &s, bool &exit) {
-    if (exit) return;
-    if (i == c.size() * c.size() ) {
-        if(c.esCuadradoMagico()){
-            s++;
-            if(s == k){
-                exit = true;
-                return;
-            }
-        }
-    }
-    int fila = floor(i / c.size());
-    int columna = i % c.size();
-    if (fila >= c.size() || exit){
-        return;
-    }
-    auto it = c.it();
-    if (c.esCuadradoMagico()) {
-        for (int j = 1; j <= c.size() * c.size(); j++) {
-            if (!(*it)) {
-                c.rellenarCasilla(fila, columna, j);
-                *it = true;
-                if(c.esCuadradoMagico()) {
-                    generarCuadradosRecursivos(c, i + 1, k, s, exit);
-                }
-                if(exit) return;
-                *it = false;
-                c.rellenarCasilla(fila, columna, 0);
-                c.setMagico();
-            }
-            advance(it,1);
-        }
-    }
-}
 
 void generarCuadrados(int n, int k){
     NumeroMagico cuadrado = NumeroMagico(n);
-    int s = 0;
-    bool exit = false;
-    generarCuadradosRecursivos(cuadrado, 0, k, s, exit);
-    if(exit){
+
+    if(cuadrado.generarCuadradosRecursivos( 0,0, k)){
         cout << cuadrado << endl;
     } else {
+//        cout << cuadrado << endl;
         cout << "-1" << endl;
     }
 }
@@ -214,10 +262,11 @@ int main() {
     int n,k;
     cin >> n;
     cin >> k;
-    //auto start = high_resolution_clock::now();
+//    auto start = high_resolution_clock::now();
     generarCuadrados(n,k);
-    //auto stop = high_resolution_clock::now();
-    //auto duration = duration_cast<milliseconds>(stop - start);
-    //cout << duration.count() << endl;
+//    auto stop = high_resolution_clock::now();
+//    float duration = duration_cast<milliseconds>(stop - start).count();
+//    duration = duration / 1000;
+//    cout << "tiempo: "<<duration << endl;
     return 0;
 }
