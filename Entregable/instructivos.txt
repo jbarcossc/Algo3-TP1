@@ -1,0 +1,11 @@
+Los archivos correspondientes a cada ejercicio se encuentran en sus respectivas carpetas 'Ejercicio 1', 'Ejercicio 2' y 'Ejercicio 3'.
+
+Para la ejecución del código, únicamente basta con situarse dentro de la carpeta con una consola que cuente con g++ y ejecutar el comando 'make'.
+Luego, ejecutar el comando './main', para ya correr cada ejercicio.
+
+Debido a la modalidad del jurado, todos los ejercicios se encuentran resueltos en un único archivo .cpp, cuyos nombres respectivamente son 'ej1.cpp', 'ej2.cpp' y 'ej3.cpp'.
+
+Testing de los ejercicios:
+Todos los ejercicios se ejecutan recibiendo entrada y emitiendo salida estándar de la forma en la que se indica en el enunciado, por lo que luego de ejecutar './main' en la correspondiente carpeta, los programas esperan una entrada por consola.
+
+Por último, el archivo 'Informe.pdf' contiene toda la presentación correspondiente al ejercicio 3, como se solicitó en el enunciado.
