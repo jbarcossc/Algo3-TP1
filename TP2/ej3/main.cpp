@@ -17,7 +17,7 @@ int main() {
     //leer
     int c, oficina, distanciaMax, modems, precioUTP, precioFibra, x, y;
     vector<pair<int,int>> posiciones;
-    vector<pair<float,float>> res;
+    vector<pair<double,double>> res;
     while (c--){
         cin >> oficina;
         cin >> distanciaMax;
@@ -39,9 +39,8 @@ int main() {
         cout << "tardo: " << tiempo << " seg\n";
     }
 
-    //ejecutar y tomar el tiempo
     for (int i=0; i<res.size();i++){
-        cout << "Caso #" << i << ": " << res[i].first << " " << res[i].second << endl;
+        cout << "Caso #" << i << ": " << setprecision(4) << res[i].first << " "  << setprecision(4) << res[i].second << endl;
     }
 
     return 0;
