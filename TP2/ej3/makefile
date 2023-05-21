@@ -1,5 +1,5 @@
 all:
-	g++ -o ex ex.cpp -g -std=c++14
+	g++ -o main main.cpp -g -std=c++14
 
 clean:
 	rm -rf ex
