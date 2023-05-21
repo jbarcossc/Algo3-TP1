@@ -82,7 +82,6 @@ void crearAristas(){
 }
 
 int main() {
-    //leer
     int c, x, y,j=1;
     cin >> c;
     while (c--){
@@ -103,7 +102,7 @@ int main() {
         crearAristas();
         pair<double,double> res = precios(kruskal());
 
-        // salida
+        // output
         printf("Caso #%d: %.3f %.3f\n",j,res.first,res.second);
         j++;
     }

@@ -10,17 +10,18 @@ using namespace std;
 using namespace std::chrono;
 
 int n;
-vector<vector<int>> listaAdyacencia;
-vector<bool> fichas;
-vector<bool> tiradas;
+vector<vector<int>> aristas;
+vector<bool> fichas; // las fichas "paradas"
+vector<bool> tiradas; // cuales son las que "hay que tirar a mono"
 
 void tirar(int f, int i){
+    // tirar ficha f cuyo padre es i
     if (fichas[f-1]) {
         if (f == i) { tiradas[f-1] = true;}
         fichas[f-1] = false;
 
-        for (int j = 0; j < listaAdyacencia[f-1].size(); j++) {
-            int fichaATirar = listaAdyacencia[f-1][j];
+        for (int j = 0; j < aristas[f-1].size(); j++) {
+            int fichaATirar = aristas[f-1][j];
             if (fichaATirar != i) {
                 tiradas[fichaATirar-1] = false;
                 if (fichas[fichaATirar - 1]) {
@@ -45,22 +46,15 @@ int main() {
     //leer
     int m, v, w;
     cin >> n; cin >> m;
-    vector<vector<int>> mat(n);
-    listaAdyacencia = mat;
+    aristas.assign(n,{});
     while (m--){
         cin >> v; cin >> w;
-        listaAdyacencia[v-1].push_back(w);
+        aristas[v-1].push_back(w);
     }
 
-    //ejecutar y tomar el tiempo
-    //auto start = high_resolution_clock::now();
-
     //llamar al algoritmo//
-
-    vector<bool> f(n,true);
-    fichas = f;
-    vector<bool> t(n,false);
-    tiradas = t;
+    fichas.assign(n, true);
+    tiradas.assign(n, false);
     for(int i = 1; i <= n; i++){
         tirar(i,i);
     }
@@ -72,11 +66,5 @@ int main() {
         cout << res[i];
     }
     cout << endl;
-    // salida
-//    auto stop = high_resolution_clock::now();
-//    float tiempo = duration_cast<milliseconds>(stop - start).count(); //milisegundos
-//    tiempo = tiempo / 1000; // pasar a segundos
-//    cout << "tardo: " << tiempo << " seg\n";
-
     return 0;
 }
