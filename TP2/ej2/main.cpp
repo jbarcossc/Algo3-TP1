@@ -53,7 +53,7 @@ int main() {
     }
 
     //ejecutar y tomar el tiempo
-    auto start = high_resolution_clock::now();
+    //auto start = high_resolution_clock::now();
 
     //llamar al algoritmo//
 
@@ -73,10 +73,10 @@ int main() {
     }
     cout << endl;
     // salida
-    auto stop = high_resolution_clock::now();
-    float tiempo = duration_cast<milliseconds>(stop - start).count(); //milisegundos
-    tiempo = tiempo / 1000; // pasar a segundos
-    cout << "tardo: " << tiempo << " seg\n";
+//    auto stop = high_resolution_clock::now();
+//    float tiempo = duration_cast<milliseconds>(stop - start).count(); //milisegundos
+//    tiempo = tiempo / 1000; // pasar a segundos
+//    cout << "tardo: " << tiempo << " seg\n";
 
     return 0;
 }
