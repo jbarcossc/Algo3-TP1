@@ -77,6 +77,7 @@ void crearAristas(){
         for(int j=i+1; j<n; j++){
             double dist = distancia(posiciones[i],posiciones[j]);
             E.push_back({dist,i,j});
+            E.push_back({dist,j,i});
         }
     }
 }
