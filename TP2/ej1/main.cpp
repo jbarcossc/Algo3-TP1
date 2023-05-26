@@ -3,6 +3,7 @@
 #include <fstream>
 #include <chrono>
 #include <sstream>
+#include <math.h>
 #include <algorithm>
 #include <iomanip>
 #include <set>
@@ -12,18 +13,18 @@ using namespace std::chrono;
 
 vector<vector<int>> aristas;
 vector<int> low, tin;
-vector<bool> visitado;
 set<pair<int,int>> puentes;
 int timer;
 int n;
-vector<bool> vistos(n,false);
+vector<bool> vistos, caminoVisitado, visitado;
 
 int numeroCombinatorio(int n, int k){
     // casos base
     if (k > n) return 0;
     if (k == 0 || k == n) return 1;
 
-    return numeroCombinatorio(n - 1, k - 1) + numeroCombinatorio(n - 1, k);
+    return (tgamma(n+1) / (tgamma(n - k + 1)* tgamma(k+1)));
+    //return numeroCombinatorio(n - 1, k - 1) + numeroCombinatorio(n - 1, k);
 }
 
 void dfs(int v, int p = -1) {
@@ -55,8 +56,8 @@ void find_bridges() {
 
 bool esPuente(int v, int w){
     bool res = false;
-    res = res || puentes.find(make_pair(w,v)) != puentes.end();
-    res = res || puentes.find(make_pair(v,w)) != puentes.end();
+    res |= puentes.find(make_pair(w,v)) != puentes.end();
+    res |= puentes.find(make_pair(v,w)) != puentes.end();
     return res;
 }
 
@@ -70,15 +71,34 @@ vector<int> conexiones(int v){
     return res;
 }
 
+bool hayCamino(int v, int w){
+    bool res = false;
+    caminoVisitado[v] = true;
+    for(int i = 0; i < aristas[v].size(); i++){
+        if(!caminoVisitado[aristas[v][i]]){
+            if(aristas[v][i] == w){
+                return true;
+            } else {
+                res |= hayCamino(aristas[v][i],w);
+            }
+        }
+    }
+    return res;
+}
+
 bool hayPuente(int v, int w){
     if (esPuente(v, w)) return true;
     bool res = false;
     vistos[v] = true;
     vector<int> conex = conexiones(v);
     for(int i = 0; i < conex.size(); i++){
-        if(esPuente(conex[i],v)){
+        if (esPuente(v,conex[i])){
+            caminoVisitado.assign(n, false);
+            caminoVisitado[v] = true;
+            res |= hayCamino(conex[i],w);
+        } else {
+            res |= hayPuente(conex[i], w);
         }
-        res |= hayPuente(conex[i], w);
     }
     return res;
 }
@@ -86,10 +106,10 @@ bool hayPuente(int v, int w){
 
 int formasDePerder(){
     int res = 0;
-    vector<bool> vacio(n,false);
     for (int v=0; v<n-1; v++){
         for (int w=v+1; w<n; w++){
-            vistos = vacio;
+            vistos.assign(n, false);
+            caminoVisitado.assign(n, false);
             if (hayPuente(v,w)){
                 res++;
             }
@@ -99,18 +119,21 @@ int formasDePerder(){
 }
 
 double probabilidadDePerder(){
-    return ((double)formasDePerder() / (double)numeroCombinatorio(n,2));
+    return ((double)formasDePerder() / (double)numeroCombinatorio(n-1,2));
 }
 
 int main() {
     //input
-    int m,v, w;
-    cin >> n; cin >> m;
+
+    int m,v,w;
+
+    cin >> n; cin >> m;n++;
 
     aristas.assign(n,{});
     timer = 0;
     visitado.assign(n, false);
     vistos.assign(n, false);
+    caminoVisitado.assign(n, false);
     tin.assign(n, -1);
     low.assign(n, -1);
     while (m--){
@@ -122,16 +145,43 @@ int main() {
     //algoritmo
     find_bridges();
 
-    //printf("hayPuente 1 2: %d \n", (int) hayPuente(0,1));
-    //printf("hayPuente 1 3: %d \n", (int) hayPuente(0,2));
-    //printf("hayPuente 1 4: %d \n", (int) hayPuente(0,3));
-    //printf("hayPuente 2 3: %d \n", (int) hayPuente(1,2));
-    //printf("hayPuente 2 4: %d \n", (int) hayPuente(1,3));
-    printf("hayPuente 3 4: %d \n", (int) hayPuente(2,3));
 
+/*
+    caminoVisitado.assign(n, false);
+    vistos.assign(n, false);
+    printf("hayPuente 1 2: %d \n", (int) hayPuente(0,1));
+    caminoVisitado.assign(n, false);
+    vistos.assign(n, false);
+    printf("hayPuente 1 3: %d \n", (int) hayPuente(0,2));
+    caminoVisitado.assign(n, false);
+    vistos.assign(n, false);
+    printf("hayPuente 1 4: %d \n", (int) hayPuente(0,3));
+    caminoVisitado.assign(n, false);
+    vistos.assign(n, false);
+    printf("hayPuente 2 3: %d \n", (int) hayPuente(1,2));
+    caminoVisitado.assign(n, false);
+    vistos.assign(n, false);
+    printf("hayPuente 2 4: %d \n", (int) hayPuente(1,3));
+    caminoVisitado.assign(n, false);
+    vistos.assign(n, false);
+    printf("hayPuente 3 4: %d \n", (int) hayPuente(2,3));
+*/
+/*
+    printf("hayCamino 1 2: %d \n", (int) hayCamino(0,1));
+    caminoVisitado.assign(n, false);
+    printf("hayCamino 1 3: %d \n", (int) hayCamino(0,2));
+    caminoVisitado.assign(n, false);
+    printf("hayCamino 1 4: %d \n", (int) hayCamino(0,3));
+    caminoVisitado.assign(n, false);
+    printf("hayCamino 2 3: %d \n", (int) hayCamino(1,2));
+    caminoVisitado.assign(n, false);
+    printf("hayCamino 2 4: %d \n", (int) hayCamino(1,3));
+    caminoVisitado.assign(n, false);
+    printf("hayCamino 3 4: %d \n", (int) hayCamino(2,3));
+    */
     //printf("formasDePerder %d \n",formasDePerder());
 
-    //printf("%.6f\n",probabilidadDePerder());
+    printf("%.6f\n",probabilidadDePerder());
 
 
     return 0;
