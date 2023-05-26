@@ -117,13 +117,13 @@ int formasDePerder(){
 }
 
 double probabilidadDePerder(){
-    return ((double)formasDePerder() / (double)numeroCombinatorio(n,2));
+    return ((double)formasDePerder() / (double)numeroCombinatorio(n-1,2));
 }
 
 int main() {
     //input
-    int m,v, w;
-    cin >> n; cin >> m;
+    int m,v,w;
+    cin >> n; cin >> m;n++;
 
     aristas.assign(n,{});
     timer = 0;
