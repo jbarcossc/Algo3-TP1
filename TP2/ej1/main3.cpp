@@ -1,30 +1,21 @@
 #include <iostream>
 #include <vector>
-#include <fstream>
 #include <chrono>
 #include <sstream>
 #include <math.h>
-#include <algorithm>
-#include <iomanip>
 #include <set>
 
 using namespace std;
 using namespace std::chrono;
 
-vector<vector<int>> aristas;
+vector<vector<int>> aristas, tablaPuentes;
 vector<int> low, tin;
 set<pair<int,int>> puentes;
-int timer;
-int n;
+int timer,n;
 vector<bool> vistos, caminoVisitado, visitado;
 
 int numeroCombinatorio(int n, int k){
-    // casos base
-    if (k > n) return 0;
-    if (k == 0 || k == n) return 1;
-
     return (tgamma(n+1) / (tgamma(n - k + 1)* tgamma(k+1)));
-    //return numeroCombinatorio(n - 1, k - 1) + numeroCombinatorio(n - 1, k);
 }
 
 void dfs(int v, int p = -1) {
@@ -61,16 +52,6 @@ bool esPuente(int v, int w){
     return res;
 }
 
-vector<int> conexiones(int v){
-    vector<int> res;
-    for(int i = 0; i < aristas[v].size(); i++){
-        if(!vistos[aristas[v][i]]){
-            res.push_back(aristas[v][i]);
-        }
-    }
-    return res;
-}
-
 bool hayCamino(int v, int w){
     bool res = false;
     caminoVisitado[v] = true;
@@ -87,19 +68,29 @@ bool hayCamino(int v, int w){
 }
 
 bool hayPuente(int v, int w){
-    if (esPuente(v, w)) return true;
+    if(tablaPuentes[v][w] != -1){
+        return (bool) tablaPuentes[v][w];
+    }
+    if (esPuente(v, w)){
+        tablaPuentes[v][w] = true;
+        tablaPuentes[w][v] = true;
+        return true;
+    }
     bool res = false;
     vistos[v] = true;
-    vector<int> conex = conexiones(v);
-    for(int i = 0; i < conex.size(); i++){
-        if (esPuente(v,conex[i])){
-            caminoVisitado.assign(n, false);
-            caminoVisitado[v] = true;
-            res |= hayCamino(conex[i],w);
-        } else {
-            res |= hayPuente(conex[i], w);
+    for(int i = 0; i < aristas[v].size(); i++){
+        if(!vistos[aristas[v][i]]) {
+            if (esPuente(v, aristas[v][i])) {
+                caminoVisitado.assign(n, false);
+                caminoVisitado[v] = true;
+                res |= hayCamino(aristas[v][i], w);
+            } else {
+                res |= hayPuente(aristas[v][i], w);
+            }
         }
     }
+    tablaPuentes[v][w] = (int) res;
+    tablaPuentes[w][v] = (int) res;
     return res;
 }
 
@@ -126,9 +117,11 @@ int main() {
 
     int m,v,w;
 
-    cin >> n; cin >> m;n++;
+    cin >> n; cin >> m; n++;
 
     aristas.assign(n,{});
+    vector<int> row(n,-1);
+    tablaPuentes.assign(n,row);
     timer = 0;
     visitado.assign(n, false);
     vistos.assign(n, false);
