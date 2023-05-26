@@ -3,6 +3,7 @@
 #include <fstream>
 #include <chrono>
 #include <sstream>
+#include <math.h>
 #include <algorithm>
 #include <iomanip>
 #include <set>
@@ -22,7 +23,8 @@ int numeroCombinatorio(int n, int k){
     if (k > n) return 0;
     if (k == 0 || k == n) return 1;
 
-    return numeroCombinatorio(n - 1, k - 1) + numeroCombinatorio(n - 1, k);
+    return (tgamma(n+1) / (tgamma(n - k + 1)* tgamma(k+1)));
+    //return numeroCombinatorio(n - 1, k - 1) + numeroCombinatorio(n - 1, k);
 }
 
 void dfs(int v, int p = -1) {
@@ -122,7 +124,9 @@ double probabilidadDePerder(){
 
 int main() {
     //input
+
     int m,v,w;
+
     cin >> n; cin >> m;n++;
 
     aristas.assign(n,{});
@@ -140,6 +144,7 @@ int main() {
 
     //algoritmo
     find_bridges();
+
 
 /*
     caminoVisitado.assign(n, false);
