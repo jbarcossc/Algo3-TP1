@@ -24,12 +24,23 @@ struct DSU{
         return padre[v] = find(padre[v]);
     }
 
+    int findNOPathCompression(int v){
+        if(v == padre[v]) return v;
+        return find(padre[v]);
+    }
+
     void unite(int u, int v){
         u = find(u), v = find(v);
         if(u == v) return;
         if(rank[u] < rank[v]) swap(u,v);
         padre[v] = padre[u];
         rank[u] = max(rank[u],rank[v]+1);
+    }
+
+    void unionNoRank(int u,int v){
+//        u = findNOPathCompression(u), v = findNOPathCompression(v);
+//        if(u == v) return;
+        padre[u]= findNOPathCompression(v);
     }
 
     vector<int> padre;
@@ -39,7 +50,7 @@ struct DSU{
 vector<double> kruskal(){
     vector<double> res;
     sort(E.begin(),E.end());
-    int nodosDesconectados = n;
+    int componentesConexos = n;
     DSU dsu(n);
     for(auto i : E){
         int u = get<1>(i), v = get<2>(i);
@@ -49,8 +60,8 @@ vector<double> kruskal(){
             // agregar
             dsu.unite(u,v);
             res.push_back(c);
-            nodosDesconectados--;
-            if (nodosDesconectados == modems ) break;
+            componentesConexos--;
+            if (componentesConexos == modems ) break;
         }
     }
     return res;
