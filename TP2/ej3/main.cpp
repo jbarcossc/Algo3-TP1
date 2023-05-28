@@ -1,12 +1,13 @@
 #include <iostream>
 #include <vector>
-#include <fstream>
 #include <chrono>
 #include <sstream>
 #include <algorithm>
 #include <bits/stdc++.h>
+#include "kruskalAlternativo.h"
 
 using namespace std;
+using namespace std::chrono;
 
 int n, m, distanciaMax, modems, precioUTP, precioFibra;
 vector<tuple<double,int,int>> E;
@@ -24,6 +25,11 @@ struct DSU{
         return padre[v] = find(padre[v]);
     }
 
+    int findNOPathCompression(int v){
+        if(v == padre[v]) return v;
+        return find(padre[v]);
+    }
+
     void unite(int u, int v){
         u = find(u), v = find(v);
         if(u == v) return;
@@ -32,14 +38,21 @@ struct DSU{
         rank[u] = max(rank[u],rank[v]+1);
     }
 
+    void unionNoRank(int u,int v){
+//        u = findNOPathCompression(u), v = findNOPathCompression(v);
+//        if(u == v) return;
+        padre[u]= findNOPathCompression(v);
+    }
+
     vector<int> padre;
     vector<int> rank;
 };
 
+
 vector<double> kruskal(){
     vector<double> res;
     sort(E.begin(),E.end());
-    int nodosDesconectados = n;
+    int componentesConexos = n;
     DSU dsu(n);
     for(auto i : E){
         int u = get<1>(i), v = get<2>(i);
@@ -49,8 +62,8 @@ vector<double> kruskal(){
             // agregar
             dsu.unite(u,v);
             res.push_back(c);
-            nodosDesconectados--;
-            if (nodosDesconectados == modems ) break;
+            componentesConexos--;
+            if (componentesConexos == modems ) break;
         }
     }
     return res;
@@ -99,12 +112,25 @@ int main() {
             posiciones.push_back(make_pair(x,y));
         }
 
+
+        auto start = high_resolution_clock::now();
+
         //algoritmo
         crearAristas();
+//        pair<double,double> res = precios(findMinimumSpanningTree(n,modems,E));
         pair<double,double> res = precios(kruskal());
+
+
 
         // output
         printf("Caso #%d: %.3f %.3f\n",j,res.first,res.second);
+
+
+        auto stop = high_resolution_clock::now();
+        float tiempo = duration_cast<milliseconds>(stop - start).count();
+        tiempo = tiempo / 1000;
+        cout << "size " << n <<" tardo: "<< tiempo << " seg\n";
+
         j++;
     }
 
