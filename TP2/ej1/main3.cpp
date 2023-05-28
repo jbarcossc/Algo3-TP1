@@ -97,11 +97,13 @@ bool hayPuente(int v, int w){
 
 int formasDePerder(){
     int res = 0;
-    for (int v=0; v<n-1; v++){
-        for (int w=v+1; w<n; w++){
+    for (int v=0; v<n-2; ++v){
+        for (int w=v+1; w<n-1; ++w){
             vistos.assign(n, false);
-            if (hayPuente(v,w)){
+            caminoVisitado.assign(n, false);
+            if (hayPuente(v,w) || !hayCamino(v,w)){
                 res++;
+            } else {
             }
         }
     }
@@ -112,6 +114,15 @@ double probabilidadDePerder(){
     return ((double)formasDePerder() / (double)numeroCombinatorio(n-1,2));
 }
 
+void printTabla(){
+    for(int i = 0; i < tablaPuentes.size(); i++){
+        for (int j = 0; j < tablaPuentes[i].size(); j++) {
+            cout << tablaPuentes[i][j] << " ";
+        }
+        cout << endl;
+    }
+}
+
 int main() {
     //input
 
@@ -119,15 +130,17 @@ int main() {
 
     cin >> n; cin >> m; n++;
 
-    aristas.assign(n,{});
+    aristas.assign(n+1,{});
     vector<int> row(n,-1);
     tablaPuentes.assign(n,row);
+
+
     timer = 0;
-    visitado.assign(n, false);
-    vistos.assign(n, false);
-    caminoVisitado.assign(n, false);
-    tin.assign(n, -1);
-    low.assign(n, -1);
+    visitado.assign(n+1, false);
+    vistos.assign(n+1, false);
+    caminoVisitado.assign(n+1, false);
+    tin.assign(n+1, -1);
+    low.assign(n+1, -1);
     while (m--){
         cin >> v; cin >> w;
         aristas[v-1].push_back(w-1);
@@ -137,8 +150,7 @@ int main() {
     //algoritmo
     find_bridges();
 
-    printf("%.6f\n",probabilidadDePerder());
-
+    printf("%.5f\n",probabilidadDePerder());
 
     return 0;
 }
