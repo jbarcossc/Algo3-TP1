@@ -1,12 +1,13 @@
 #include <iostream>
 #include <vector>
-#include <fstream>
 #include <chrono>
 #include <sstream>
 #include <algorithm>
 #include <bits/stdc++.h>
+#include "kruskalAlternativo.h"
 
 using namespace std;
+using namespace std::chrono;
 
 int n, m, distanciaMax, modems, precioUTP, precioFibra;
 vector<tuple<double,int,int>> E;
@@ -46,6 +47,7 @@ struct DSU{
     vector<int> padre;
     vector<int> rank;
 };
+
 
 vector<double> kruskal(){
     vector<double> res;
@@ -110,12 +112,25 @@ int main() {
             posiciones.push_back(make_pair(x,y));
         }
 
+
+        auto start = high_resolution_clock::now();
+
         //algoritmo
         crearAristas();
+//        pair<double,double> res = precios(findMinimumSpanningTree(n,modems,E));
         pair<double,double> res = precios(kruskal());
+
+
 
         // output
         printf("Caso #%d: %.3f %.3f\n",j,res.first,res.second);
+
+
+        auto stop = high_resolution_clock::now();
+        float tiempo = duration_cast<milliseconds>(stop - start).count();
+        tiempo = tiempo / 1000;
+        cout << "size " << n <<" tardo: "<< tiempo << " seg\n";
+
         j++;
     }
 
