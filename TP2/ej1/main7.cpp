@@ -9,7 +9,7 @@ using namespace std;
 using namespace std::chrono;
 
 vector<vector<int>> aristas;
-vector<vector<bool>> hayPuente;
+vector<vector<bool>> hayPuente, tablaCaminos;
 vector<int> low, tin;
 int timer,n;
 vector<bool> vistos, caminoVisitado, visitado;
@@ -66,21 +66,42 @@ void sacarPuentes(){
     for (int v=0;v<n; v++){
         for (int w : aristas[v]){
             if (!esPuente(v,w)){
-               aristasSinPuentes[v].push_back(w);
-               aristasSinPuentes[w].push_back(v);
+                aristasSinPuentes[v].push_back(w);
+                aristasSinPuentes[w].push_back(v);
             }
         }
     }
     aristas=aristasSinPuentes;
 }
 
+void calcularCaminosRecursivos(int v){
+    for (int w : aristas[v]) {
+        if(!tablaCaminos[v][w] && !caminoVisitado[w]){
+            caminoVisitado[w] = true;
+            calcularCaminosRecursivos(w);
+        }
+    }
+}
+
+void calcularCaminos(){
+    for(int v = 0; v < n-1; v++){
+        caminoVisitado.assign(n, false);
+        caminoVisitado[v] = true;
+        calcularCaminosRecursivos(v);
+        for (int i = 0; i < caminoVisitado.size(); ++i) {
+            if (caminoVisitado[i]){
+                tablaCaminos[v][i] = true;
+                tablaCaminos[i][v] = true;
+            }
+        }
+    }
+}
+
 int formasDePerder(){
     int res = 0;
-    for (int v=0; v<n-1; v++){
-        visitado.assign(n, false);
-        dfsCamino(v);
-        for (int j=v; j<n-1; j++){
-            if (!visitado[j]) res++;
+    for (int v=0; v<n-2; v++){
+        for (int w = v+1; w < n-1; ++w) {
+            res += (int) tablaCaminos[v][w];
         }
     }
     return res;
@@ -100,6 +121,7 @@ int main() {
     aristas.assign(n,{});
     timer = 0;
     visitado.assign(n, false);
+    tablaCaminos.assign(n, visitado);
     hayPuente.assign(n,visitado);
     vistos.assign(n, false);
     caminoVisitado.assign(n, false);
@@ -115,6 +137,7 @@ int main() {
     //algoritmo
     find_bridges();
     sacarPuentes();
+    calcularCaminos();
 
 
     printf("%.5f\n",probabilidadDePerder());

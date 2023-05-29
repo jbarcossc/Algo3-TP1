@@ -9,7 +9,7 @@ using namespace std;
 using namespace std::chrono;
 
 vector<vector<int>> aristas;
-vector<vector<bool>> hayPuente;
+vector<vector<bool>> hayPuente, tablaCaminos;
 vector<int> low, tin;
 int timer,n;
 vector<bool> vistos, caminoVisitado, visitado;
@@ -28,6 +28,32 @@ void dfsCamino(int v) {
             dfsCamino(u);
     }
 }
+
+bool hayCamino(int v, int w){
+    if(tablaCaminos[v][w] == 1){
+        return true;
+    }
+    bool res = false;
+    caminoVisitado[v] = true;
+    for(int i = 0; i < aristas[v].size(); i++){
+        if(!caminoVisitado[aristas[v][i]]){
+            if(aristas[v][i] == w){
+                tablaCaminos[v][w] = true;
+                tablaCaminos[w][v] = true;
+                return true;
+            } else {
+                res |= hayCamino(aristas[v][i],w);
+            }
+        }
+        if(res){
+            tablaCaminos[v][w] = true;
+            tablaCaminos[w][v] = true;
+            return true;
+        }
+    }
+    return res;
+}
+
 void dfsParaPuentes(int v, int p = -1) {
     visitado[v] = true;
     tin[v] = low[v] = timer++;
@@ -66,8 +92,8 @@ void sacarPuentes(){
     for (int v=0;v<n; v++){
         for (int w : aristas[v]){
             if (!esPuente(v,w)){
-               aristasSinPuentes[v].push_back(w);
-               aristasSinPuentes[w].push_back(v);
+                aristasSinPuentes[v].push_back(w);
+                aristasSinPuentes[w].push_back(v);
             }
         }
     }
@@ -77,17 +103,16 @@ void sacarPuentes(){
 int formasDePerder(){
     int res = 0;
     for (int v=0; v<n-1; v++){
-        visitado.assign(n, false);
-        dfsCamino(v);
-        for (int j=v; j<n-1; j++){
-            if (!visitado[j]) res++;
+        for(int w = v+1; w < n; w++){
+            caminoVisitado.assign(n, false);
+            res += (int) hayCamino(v,w);
         }
     }
     return res;
 }
 
 double probabilidadDePerder(){
-    return ((double)formasDePerder() / (double)numeroCombinatorio(n-1,2));
+    return ((double)formasDePerder() / (double)((n-1) * (n - 2) / 2));
 }
 
 int main() {
@@ -100,6 +125,8 @@ int main() {
     aristas.assign(n,{});
     timer = 0;
     visitado.assign(n, false);
+    vector<bool> row(n,false);
+    tablaCaminos.assign(n,row);
     hayPuente.assign(n,visitado);
     vistos.assign(n, false);
     caminoVisitado.assign(n, false);
@@ -111,13 +138,11 @@ int main() {
         aristas[w-1].push_back(v-1);
     }
 
-
     //algoritmo
     find_bridges();
     sacarPuentes();
 
-
-    printf("%.5f\n",probabilidadDePerder());
+    printf("%.5f",probabilidadDePerder());
 
 
     return 0;
