@@ -7,29 +7,28 @@
 
 using namespace std;
 using namespace std::chrono;
+typedef long long ll;
 
-vector<vector<int>> aristas, tablaPuentes;
-vector<int> low, tin;
-set<pair<int,int>> puentes;
-int timer,n;
+vector<vector<ll>> aristas, tablaPuentes;
+vector<ll> low, tin;
+vector<vector<bool>> puenteEnPosicion;
+ll timer,n;
 vector<bool> vistos, caminoVisitado, visitado;
 
-int numeroCombinatorio(int n, int k){
-    return (tgamma(n+1) / (tgamma(n - k + 1)* tgamma(k+1)));
-}
-
-void dfs(int v, int p = -1) {
+void dfs(ll v, ll p = -1) {
     visitado[v] = true;
     tin[v] = low[v] = timer++;
-    for (int u : aristas[v]) {
+    for (ll u : aristas[v]) {
         if (u == p) continue;
         if (visitado[u]) {
             low[v] = min(low[v], tin[u]);
         } else {
             dfs(u, v);
             low[v] = min(low[v], low[u]);
-            if (low[u] > tin[v])
-                puentes.insert(make_pair(v,u));
+            if (low[u] > tin[v]) {
+                puenteEnPosicion[v][u] = true;
+                puenteEnPosicion[u][v] = true;
+            }
         }
     }
 }
@@ -39,23 +38,20 @@ void find_bridges() {
     visitado[n] = false;
     tin[n] = -1;
     low[n] = -1;
-    for (int i = 0; i < n; ++i) {
+    for (ll i = 0; i < n; ++i) {
         if (!visitado[i])
             dfs(i);
     }
 }
 
-bool esPuente(int v, int w){
-    bool res = false;
-    res |= puentes.find(make_pair(w,v)) != puentes.end();
-    res |= puentes.find(make_pair(v,w)) != puentes.end();
-    return res;
+bool esPuente(ll v, ll w){
+    return puenteEnPosicion[v][w];
 }
 
-bool hayCamino(int v, int w){
+bool hayCamino(ll v, ll w){
     bool res = false;
     caminoVisitado[v] = true;
-    for(int i = 0; i < aristas[v].size(); i++){
+    for(ll i = 0; i < aristas[v].size(); i++){
         if(!caminoVisitado[aristas[v][i]]){
             if(aristas[v][i] == w){
                 return true;
@@ -67,7 +63,7 @@ bool hayCamino(int v, int w){
     return res;
 }
 
-bool hayPuente(int v, int w){
+bool hayPuente(ll v, ll w){
     if(tablaPuentes[v][w] != -1){
         return (bool) tablaPuentes[v][w];
     }
@@ -78,7 +74,7 @@ bool hayPuente(int v, int w){
     }
     bool res = false;
     vistos[v] = true;
-    for(int i = 0; i < aristas[v].size(); i++){
+    for(ll i = 0; i < aristas[v].size(); i++){
         if(!vistos[aristas[v][i]]) {
             if (esPuente(v, aristas[v][i])) {
                 caminoVisitado.assign(n, false);
@@ -88,22 +84,25 @@ bool hayPuente(int v, int w){
                 res |= hayPuente(aristas[v][i], w);
             }
         }
+        if(res){
+            tablaPuentes[v][w] = true;
+            tablaPuentes[w][v] = true;
+            return true;
+        }
     }
-    tablaPuentes[v][w] = (int) res;
-    tablaPuentes[w][v] = (int) res;
+    tablaPuentes[v][w] = false;
+    tablaPuentes[w][v] = false;
     return res;
 }
 
 
-int formasDePerder(){
-    int res = 0;
-    for (int v=0; v<n-2; ++v){
-        for (int w=v+1; w<n-1; ++w){
+ll formasDePerder(){
+    ll res = 0;
+    for (ll v=0; v<n-2; ++v){
+        for (ll w=v+1; w<n-1; ++w){
             vistos.assign(n, false);
-            caminoVisitado.assign(n, false);
-            if (hayPuente(v,w) || !hayCamino(v,w)){
+            if (hayPuente(v,w)){
                 res++;
-            } else {
             }
         }
     }
@@ -111,12 +110,12 @@ int formasDePerder(){
 }
 
 double probabilidadDePerder(){
-    return ((double)formasDePerder() / (double)numeroCombinatorio(n-1,2));
+    return ((double)formasDePerder() / (double)((n-1) * (n - 2) / 2));
 }
 
 void printTabla(){
-    for(int i = 0; i < tablaPuentes.size(); i++){
-        for (int j = 0; j < tablaPuentes[i].size(); j++) {
+    for(ll i = 0; i < tablaPuentes.size(); i++){
+        for (ll j = 0; j < tablaPuentes[i].size(); j++) {
             cout << tablaPuentes[i][j] << " ";
         }
         cout << endl;
@@ -124,19 +123,16 @@ void printTabla(){
 }
 
 int main() {
-    //input
-
-    int m,v,w;
+    ll m,v,w;
 
     cin >> n; cin >> m; n++;
 
     aristas.assign(n+1,{});
-    vector<int> row(n,-1);
+    vector<ll> row(n,-1);
     tablaPuentes.assign(n,row);
-
-
     timer = 0;
     visitado.assign(n+1, false);
+    puenteEnPosicion.assign(n+1,visitado);
     vistos.assign(n+1, false);
     caminoVisitado.assign(n+1, false);
     tin.assign(n+1, -1);
@@ -150,7 +146,7 @@ int main() {
     //algoritmo
     find_bridges();
 
-    printf("%.5f\n",probabilidadDePerder());
+    printf("%.5f",probabilidadDePerder());
 
     return 0;
 }
