@@ -1,28 +1,24 @@
 #include <iostream>
 #include <vector>
 #include <chrono>
-#include <sstream>
-#include <math.h>
-#include <set>
+#include <iomanip>
+
 
 using namespace std;
-using namespace std::chrono;
+typedef long long ll;
+
 
 vector<vector<int>> aristas;
 vector<vector<bool>> hayPuente;
 vector<int> low, tin;
-int timer,n;
-vector<bool> vistos, caminoVisitado, visitado;
-
-int numeroCombinatorio(int n, int k){
-    // casos base
-    if (k > n) return 0;
-    if (k == 0 || k == n) return 1;
-
-    return numeroCombinatorio(n - 1, k - 1) + numeroCombinatorio(n - 1, k);}
+int timer, n;
+ll id=0;
+vector<bool> visitado;
+vector<int> count;
 
 void dfsCamino(int v) {
     visitado[v] = true;
+    count[id]++;
     for (int u : aristas[v]) {
         if (!visitado[u])
             dfsCamino(u);
@@ -39,6 +35,7 @@ void dfsParaPuentes(int v, int p = -1) {
             dfsParaPuentes(u, v);
             low[v] = min(low[v], low[u]);
             if (low[u] > tin[v]){
+                //puentes en u - v
                 hayPuente[v][u]= true;
                 hayPuente[u][v]=true;
             }
@@ -46,7 +43,7 @@ void dfsParaPuentes(int v, int p = -1) {
     }
 }
 
-void find_bridges() {
+void encontrarPuentes() {
     timer = 0;
     visitado[n] = false;
     tin[n] = -1;
@@ -75,20 +72,25 @@ void sacarPuentes(){
 }
 
 
-int formasDePerder(){
-    int res = 0;
+void formasDePerder(){
+    visitado.assign(n, false);
     for (int v=0; v<n-1; v++){
-        visitado.assign(n, false);
-        dfsCamino(v);
-        for (int j=v; j<n-1; j++){
-            if (!visitado[j]) res++;
+        if (!visitado[v]){
+            dfsCamino(v);
+            id++;
         }
     }
-    return res;
 }
 
-double probabilidadDePerder(){
-    return ((double)formasDePerder() / (double)numeroCombinatorio(n-1,2));
+ll probabilidadDePerder(){
+    formasDePerder();
+    ll fail = 0;
+    for(int i = 0; i <= id; i++){
+        if(count[i]){
+            fail += ll(count[i]*(count[i]-1))/2;
+        }
+    }
+    return fail;
 }
 
 int main() {
@@ -96,14 +98,13 @@ int main() {
 
     int m,v,w;
 
-    cin >> n; cin >> m; n++;
+    cin >> n; cin >> m; n++;n++;
 
     aristas.assign(n,{});
     timer = 0;
     visitado.assign(n, false);
     hayPuente.assign(n,visitado);
-    vistos.assign(n, false);
-    caminoVisitado.assign(n, false);
+    count.assign(n,0);
     tin.assign(n, -1);
     low.assign(n, -1);
     while (m--){
@@ -114,11 +115,12 @@ int main() {
 
 
     //algoritmo
-    find_bridges();
+    encontrarPuentes();
     sacarPuentes();
 
 
-    printf("%.5f\n",probabilidadDePerder());
+//    printf("%.5f",(double)1-1.0*probabilidadDePerder()/((n-1) * ((n-1) - 1) / 2));
+    cout << setprecision(5) << 1- 1.0 * probabilidadDePerder() / ((n-1) * ((n-1) - 1) / 2);
 
 
     return 0;
