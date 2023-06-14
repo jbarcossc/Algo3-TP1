@@ -9,6 +9,8 @@ int n, m;
 vector<vector<bool>> amistad; //matriz de n x n
 vector<bool> voto;
 
+
+
 int main() {
     //intput
     while (true){
