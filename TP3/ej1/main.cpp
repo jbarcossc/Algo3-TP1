@@ -2,77 +2,82 @@
 #include <vector>
 #include <tuple>
 #include <queue>
-#define INT_MAX 2147483647
+
+const int INT_MAX = 10000000;
 
 using namespace std;
-using Edge = tuple<int,int,int>;// v, w , peso
-vector<Edge> aristas;
-vector<Edge> propuestas;
+using Edge = pair<int,int>;;// peso, v
+vector<vector<Edge>> aristas;
+vector<tuple<int,int,int>> propuestas;
 pair<vector<int>, vector<int>> distancias;
-vector<bool> visitado;
-vector<int> distancia;
-priority_queue<Edge, vector<Edge>, greater<Edge>> pq; // Min-heap
 int n,m,k,s,t;
 
-vector<int> dijkstra(int source) {
 
-    distancia[source] = 0;
+void dijkstra(int source, vector<int>& dist) {
+    vector<bool> visited(n, false);
+
+    priority_queue<Edge, vector<Edge>, greater<Edge>> pq; // Min-heap
+    dist[source] = 0;
     pq.push(make_pair(0, source));
 
     while (!pq.empty()) {
-        int u =  get<0>(pq.top());
+        int u = pq.top().second;
         pq.pop();
 
-        if (visitado[u]) continue;
+        if (visited[u])
+            continue;
 
-        visitado[u] = true;
+        visited[u] = true;
 
-        for (Edge arista : aristas) {
-            if(get<0>(arista) == u){
-                int v = get<1>(arista);
-                int weight = get<2>(arista);
+        for (const auto& arista : aristas[u]) {
+            int v = arista.second;
+            int weight = arista.first;
 
-                if (!visitado[v] && distancia[u] + weight < distancia[v]) {
-                    distancia[v] = distancia[u] + weight;
-                    pq.push(make_pair(distancia[v], v));
-                }
+            if (!visited[v] && dist[u] != INT_MAX && dist[u] + weight < dist[v]) {
+                dist[v] = dist[u] + weight;
+                pq.push(make_pair(dist[v], v));
             }
         }
     }
-    return distancia;
 }
 
+
 void calcularDistancias(){
-    distancias.first = dijkstra(s);
-    distancias.second = dijkstra(t);
+    distancias.first.assign(n,INT_MAX);
+    distancias.second.assign(n,INT_MAX);
+    dijkstra(s, distancias.first);
+    dijkstra(t, distancias.second);
 }
 
 int calcularResultado(){
     calcularDistancias();
-    int distOriginal = distancias.first[t-1];
-    int res = distOriginal;
-    for(Edge arista : propuestas){
-        int nuevaDistancia = distancias.first[get<0>(arista) - 1] + distancias.second[get<1>(arista) - 1] + get<2>(arista);
+    int distOriginal = distancias.first[t];
+    int res = distancias.first[get<0>(propuestas[0])] + distancias.second[get<1>(propuestas[0])] + get<2>(propuestas[0]);
+    for(auto arista : propuestas){
+        int nuevaDistancia = distancias.first[get<0>(arista)] + distancias.second[get<1>(arista)] + get<2>(arista);
         res = min(res, nuevaDistancia);
     }
-    return res == distOriginal ? - 1 : res;
+    return distOriginal == INT_MAX ? - 1 : res;
 }
 
 
 int main() {
     int casos; cin >> casos;
     int v,w,p;
-
+    vector<int> res;
     while (casos--){
         //input
         cin >> n; cin >> m; cin >> k; cin >> s; cin >> t;
-        n++;
-        visitado.assign(n,false);
+            n++;
         aristas.assign(n,{});
-        distancia.assign(n,INT_MAX-1);
+        propuestas.clear();
+        distancias.first.clear();
+        distancias.second.clear();
+
         while (m--){
             cin >> v; cin >> w; cin >> p;
-            aristas.push_back({v,w,p});
+            aristas[v].push_back(make_pair(p,w));
+            aristas[w].push_back(make_pair(p,v));
         }
         while (k--){
             cin >> v; cin >> w; cin >> p;
@@ -80,10 +85,15 @@ int main() {
         }
         //algoritmo
 
-        int res = calcularResultado();
-        // output
-        cout << res << endl;
+        res.push_back(calcularResultado());
+    }
+
+    // output
+    for (int i = 0; i < res.size(); ++i) {
+        cout << res[i] << endl;
     }
 
     return 0;
 }
+
+/// EL CAMINO DE RESPUESTA SI O SI TIENE QUE PASAR POR UNA CALLE DE LAS PROPUESTAS
