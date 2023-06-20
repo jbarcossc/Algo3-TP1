@@ -50,14 +50,13 @@ int maxflow(int s, int t) {
             cur = prev;
         }
     }
-
     return flow;
 }
 
 void crearGrafo(){
     //crear s y t donde s=0 y t=1
-    for (int i = 0; i < n; ++i) {
-        if(votos[i] == 1){
+    for (int i = 0; i <= n; ++i) {
+        if(votos[i+2] == 1){
             amistades[0].push_back(i+2);
             capacidad[0].push_back(1);
         } else {
@@ -78,7 +77,7 @@ int main() {
         capacidad.assign(n+3,{});
         for (int i = 0; i < n; ++i) {
             bool v; cin >> v;
-            votos[i]=v;
+            votos[i+2]=v;
         }
 
         while (m--){
@@ -86,8 +85,6 @@ int main() {
             cin >> v; cin >> w;
             amistades[v+2].push_back(w+2);
             capacidad[v+2].push_back(1);
-            amistades[w+2].push_back(v+2);
-            capacidad[w+2].push_back(1);
 
         }
 
